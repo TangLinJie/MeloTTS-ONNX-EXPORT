@@ -31,7 +31,7 @@ def get_text_for_tts_infer(text, language_str, hps, device, symbol_to_id=None):
             word2ph[i] = word2ph[i] * 2
         word2ph[0] += 1
 
-    if getattr(hps.data, "disable_bert", False):
+    if getattr(hps.data, "disable_bert", True):
         bert = torch.zeros(1024, len(phone))
         ja_bert = torch.zeros(768, len(phone))
     else:

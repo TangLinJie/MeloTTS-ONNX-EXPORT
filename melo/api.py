@@ -107,6 +107,38 @@ class TTS(nn.Module):
                 x_tst_lengths = torch.LongTensor([phones.size(0)]).to(device)
                 del phones
                 speakers = torch.LongTensor([speaker_id]).to(device)
+
+                # export dynamic onnx
+                # export inputs
+                input_names = ['x_tst', 'x_tst_lengths', 'speakers', 'tones', 'lang_ids', 'bert', 'ja_bert', 'noise_scale', 'length_scale', 'noise_scale_w', 'sdp_ratio']
+                output_names = ['audio']
+                dynamic_axes = {
+                    'x_tst' : {1: 'seq_len'},
+                    'tones' : {1: 'seq_len'},
+                    'lang_ids' : {1: 'seq_len'},
+                    'bert' : {2: 'seq_len'},
+                    'ja_bert' : {2: 'seq_len'},
+                }
+                x = (x_tst, x_tst_lengths,speakers,tones,lang_ids,bert,ja_bert,torch.tensor([noise_scale]),torch.tensor([1. / speed]),torch.tensor([noise_scale_w]),torch.tensor([sdp_ratio]))
+                # torch.save(monotonic_decoder_model.text_decoder_frontend.state_dict(), 'seamless_streaming_monotonic_decoder_text_decoder_frontend.pt')
+                dump_inputs = {
+                    'x_tst': x_tst, 
+                    'x_tst_lengths': x_tst_lengths, 
+                    'speakers': speakers, 
+                    'tones': tones, 
+                    'lang_ids': lang_ids, 
+                    'bert': bert, 
+                    'ja_bert': ja_bert, 
+                    'sdp_ratio': torch.tensor([sdp_ratio]), 
+                    'noise_scale': torch.tensor([noise_scale]), 
+                    'noise_scale_w': torch.tensor([noise_scale_w]), 
+                    'length_scale': torch.tensor([1. / speed])
+                }
+                np.savez("melotts_en_inputs.npz", **dump_inputs)
+                torch.onnx.export(self.model.cpu(), x, 'melotts_en.onnx', input_names=input_names, output_names=output_names, verbose='True', opset_version=12, dynamic_axes=dynamic_axes)
+                import sys
+                sys.exit(0)
+
                 audio = self.model.infer(
                         x_tst,
                         x_tst_lengths,
