@@ -9,6 +9,7 @@ import numpy as np
 import torch.nn as nn
 from tqdm import tqdm
 import torch
+import onnxruntime
 
 from . import utils
 from . import commons
@@ -110,6 +111,7 @@ class TTS(nn.Module):
 
                 # export dynamic onnx
                 # export inputs
+                """
                 input_names = ['x_tst', 'x_tst_lengths', 'speakers', 'tones', 'lang_ids', 'bert', 'ja_bert', 'noise_scale', 'length_scale', 'noise_scale_w', 'sdp_ratio']
                 output_names = ['audio']
                 dynamic_axes = {
@@ -139,6 +141,24 @@ class TTS(nn.Module):
                 import sys
                 sys.exit(0)
 
+                # onnx run
+                dump_inputs = {
+                    'x_tst': x_tst.numpy(), 
+                    'x_tst_lengths': x_tst_lengths.numpy(), 
+                    'speakers': speakers.numpy(), 
+                    'tones': tones.numpy(), 
+                    'lang_ids': lang_ids.numpy(), 
+                    'bert': bert.numpy(), 
+                    'ja_bert': ja_bert.numpy(), 
+                    'sdp_ratio': torch.tensor([sdp_ratio]).numpy(), 
+                    'noise_scale': torch.tensor([noise_scale]).numpy(), 
+                    'noise_scale_w': torch.tensor([noise_scale_w]).numpy(), 
+                    'length_scale': torch.tensor([1. / speed]).numpy()
+                }
+                onet_session = onnxruntime.InferenceSession("melotts_en.onnx")
+                audio = onet_session.run(None, dump_inputs)[0][0, 0]
+
+                """
                 audio = self.model.infer(
                         x_tst,
                         x_tst_lengths,

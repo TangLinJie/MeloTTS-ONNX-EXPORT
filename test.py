@@ -31,3 +31,31 @@ model.tts_to_file(text, speaker_ids['EN-AU'], output_path, speed=speed)
 # Default accent
 output_path = 'en-default.wav'
 model.tts_to_file(text, speaker_ids['EN-Default'], output_path, speed=speed)
+
+# Japanese
+text = "こんにちは."
+model = TTS(language='JP', device=device)
+speaker_ids = model.hps.data.spk2id
+output_path = 'jp.wav'
+model.tts_to_file(text, speaker_ids['JP'], output_path, speed=speed)
+
+# KR
+text = "안녕하세요."
+model = TTS(language='KR', device=device)
+speaker_ids = model.hps.data.spk2id
+output_path = 'kr.wav'
+model.tts_to_file(text, speaker_ids['KR'], output_path, speed=speed)
+
+# ES
+text = "Hola."
+model = TTS(language='ES', device=device)
+speaker_ids = model.hps.data.spk2id
+output_path = 'es.wav'
+model.tts_to_file(text, speaker_ids['ES'], output_path, speed=speed)
+
+# FR
+text = "Tu as mangé quoi aujourd'hui?"
+model = TTS(language='FR', device=device)
+speaker_ids = model.hps.data.spk2id
+output_path = 'fr.wav'
+model.tts_to_file(text, speaker_ids['FR'], output_path, speed=speed)
